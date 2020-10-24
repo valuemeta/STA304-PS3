@@ -13,8 +13,8 @@
 library(haven)
 library(tidyverse)
 # Read in the raw data.
-setwd("C:/Users/Sammi-Jo/Desktop/PS3")
-raw_data <- read_dta("inputs/usa_00002.dta.gz")
+setwd("X:/R studio proj/STA304-PS3")
+raw_data <- read_dta("usa_00002.dta.gz")
 
 
 # Add the labels
@@ -58,7 +58,7 @@ reduced_data$age <- as.integer(reduced_data$age)
 
 # Saving the census data as a csv file in my
 # working directory
-write_csv(reduced_data, "outputs/census_data.csv")
+write_csv(reduced_data, "census_data.csv")
 
 
 
