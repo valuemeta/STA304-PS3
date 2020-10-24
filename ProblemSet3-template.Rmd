@@ -12,10 +12,10 @@ output:
 library(tidyverse)
 
 # Loading in the cleaned survey Data
-survey_data <- read_csv("C:/Users/Sammi-Jo/Desktop/PS3/outputs/survey_data.csv")
+survey_data <- read_csv("X:/R studio proj/STA304-PS3/survey_data.csv")
 
 # Loading in the cleaned census Data
-census_data <- read_csv("C:/Users/Sammi-Jo/Desktop/PS3/outputs/census_data.csv")
+census_data <- read_csv("X:/R studio proj/STA304-PS3/census_data.csv")
 
 ```
 
@@ -90,5 +90,6 @@ Here you discuss subsequent work to be done after this report. This can include 
 
 # References
 
+1. Tausanovitch, Chris and Lynn Vavreck. 2020. Democracy Fund + UCLA Nationscape, October 10-17, 2019 (version 20200814). Retrieved from https://www.voterstudygroup.org/publication/nationscape-data-set.
 
-
+2. Steven Ruggles, Sarah Flood, Ronald Goeken, Josiah Grover, Erin Meyer, Jose Pacas and Matthew Sobek. IPUMS USA: Version 10.0 AMERICAN COMMUNITY SURVEY 2014-2018 5-YEAR SAMPLE. Minneapolis, MN: IPUMS, 2020. https://doi.org/10.18128/D010.V10.0

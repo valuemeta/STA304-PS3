@@ -29,3 +29,7 @@ vignettes/*.pdf
 ns20200625.dta
 bannerbook_ns20200625.pdf
 codebook_ns20200625.pdf
+survey_data.csv
+census_data.csv
+usa_00002.dta.gz
+ProblemSet3-template.pdf
