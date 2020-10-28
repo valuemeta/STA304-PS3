@@ -5,8 +5,8 @@
 # Contact: xudanny1@gmail.com, OTHER EMAILS
 # License: MIT
 # Pre-requisites: 
-# - ACS 5 year 2018 data downloaded with the following variables:
-# - HHINCOME, US2018C_ST, SEX, RACE, BPL, US2018C_SCHL
+# - IPMUS ACS 5 year 2018 data downloaded with the following variables:
+# - HHINCOME, US2018C_ST, SEX, RACE, BPL, US2018C_SCHL, AGE
 # - Make sure the full file name is usa_0002.dta.gz
 # - Place it in the root directory !!!!! Might change this later
 # - Make sure that the directory and file path are correct for your computer
@@ -158,38 +158,51 @@ raw_data <- raw_data %>%
                            us2018c_st == "53" ~ "WA",
                            us2018c_st == "54" ~ "WV",
                            us2018c_st == "55" ~ "WI",
-                           us2018c_st == "56" ~ "WY"))
+                           us2018c_st == "56" ~ "WY",
+                           TRUE ~ "not available"))
 # Age cleaning
 raw_data <- raw_data %>%
   mutate(age_tidied = as.numeric(age) - 1)
+# Bin the ages
+raw_data <- raw_data %>%
+  mutate(age_bin = case_when(age_tidied <= 17 ~ "Not eligible",
+                             age_tidied <= 24 ~ "18 to 24",
+                             age_tidied <= 34 ~ "25 to 34",
+                             age_tidied <= 44 ~ "35 to 44",
+                             age_tidied <= 54 ~ "45 to 54",
+                             age_tidied <= 64 ~ "55 to 64",
+                             age_tidied <= 74 ~ "65 to 74",
+                             age_tidied >= 75  ~ "75 and older",
+                             TRUE ~ "not available"))
 
-# Just keep some variables that may be of interest (change 
-# this depending on your interests)
+# Keep the variables that are relevant to the model
 reduced_data <- 
   raw_data %>% 
-  select(sex,
-         age)
+  select(foreign_born,
+         sex,
+         race_ethnicity,
+         household_income,
+         education,
+         state,
+         age_bin)
          
-
-#### What's next? ####
-
-## Here I am only splitting cells by age, but you 
-## can use other variables to split by changing
-## count(age) to count(age, sex, ....)
-
-reduced_data <- 
-  reduced_data %>%
-  count(age) %>%
-  group_by(age) 
-
-reduced_data <- 
-  reduced_data %>% 
-  filter(age != "less than 1 year old") %>%
-  filter(age != "90 (90+ in 1980 and 1990)")
-
-reduced_data$age <- as.integer(reduced_data$age)
+# Post Stratification cell counts
+reduced_data <- reduced_data %>%
+  count(foreign_born,
+        sex,
+        race_ethnicity,
+        household_income,
+        education,
+        state,
+        age_bin) %>%
+  group_by(foreign_born,
+           sex,
+           race_ethnicity,
+           household_income,
+           education,
+           state,
+           age_bin) 
 
 # Saving the census data as a csv file in my
 # working directory
 write_csv(reduced_data, "census_data.csv")
-
