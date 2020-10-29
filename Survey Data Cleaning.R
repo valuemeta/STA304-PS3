@@ -76,7 +76,8 @@ reduced_data <-
          household_income,
          education,
          state,
-         age_bin)
+         age_bin,
+         weight)
 
 # Saving the survey/sample data as a csv file in my
 # working directory
