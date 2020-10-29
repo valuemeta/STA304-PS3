@@ -84,7 +84,8 @@ reduced_data <- reduced_data %>%
                                       hhincome <= 249999 ~ "$200,000 to $249,999",
                                       hhincome == 9999999 ~ "Respondent Skipped",
                                       hhincome >= 250000 ~ "$250,000 and above",
-                                      TRUE ~ "Respondent Skipped"))
+                                      TRUE ~ "Respondent Skipped")) %>%
+  filter(household_income != "Respondent Skipped")
 
 # Education tidying
 reduced_data <- reduced_data %>%
@@ -111,7 +112,8 @@ reduced_data <- reduced_data %>%
                                us2018c_schl == "21" ~ "College Degree (such as B.A., B.S.)",
                                us2018c_schl == "22" ~ "Masters degree",
                                us2018c_schl == "24" ~ "Doctorate degree",
-                               TRUE ~ "Respondent Skipped"))
+                               TRUE ~ "Respondent Skipped")) %>%
+  filter(education != "Respondent Skipped")
 
 # State code tidying
 reduced_data <- reduced_data %>%
@@ -180,7 +182,8 @@ reduced_data <- reduced_data %>%
                              age_tidied <= 64 ~ "55 to 64",
                              age_tidied <= 74 ~ "65 to 74",
                              age_tidied >= 75  ~ "75 or older",
-                             TRUE ~ "Respondent Skipped"))
+                             TRUE ~ "Respondent Skipped")) %>%
+  filter(age_bin != "Not eligible")
 
 # Rename some variables
 reduced_data <- reduced_data %>%
