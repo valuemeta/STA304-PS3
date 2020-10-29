@@ -64,12 +64,18 @@ reduced_data <- reduced_data %>%
 reduced_data <-
   reduced_data %>%
   mutate(vote_trump = 
-           ifelse(vote_2020=="Donald Trump", 1, 0))
+           ifelse(vote_2020 == "Donald Trump", 1, 0))
+
+reduced_data <-
+  reduced_data %>%
+  mutate(vote_biden = 
+           ifelse(vote_2020 == "Joe Biden", 1, 0))
 
 # Just keep some variables
 reduced_data <- 
   reduced_data %>% 
   select(vote_trump,
+         vote_biden,
          foreign_born,
          gender,
          race_ethnicity,
