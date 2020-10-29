@@ -24,63 +24,70 @@ raw_data <- read_dta("usa_00002.dta.gz")
 # Add the labels
 raw_data <- labelled::to_factor(raw_data)
 
+reduced_data <- raw_data
+
 ## Foreign born variable creation (using birthplace)
 # Create a numeric version of the birthplace data for ease of cleaning
-raw_data <- raw_data %>%
+reduced_data <- reduced_data %>%
   mutate(birthplace = as.numeric(bpl))
 # Birthplace tidying into categorical variable
-raw_data <- raw_data %>%
-  mutate(foreign_born = case_when(is.element(birthplace, 1:51) ~ "no",
-                                  is.element(birthplace, 52:162) ~ "yes",
-                                  TRUE ~ "not available"))
+reduced_data <- reduced_data %>%
+  mutate(foreign_born = case_when(is.element(birthplace, 1:51) ~ "The United States",
+                                  is.element(birthplace, 52:162) ~ "Another country",
+                                  TRUE ~ "Respondent Skipped"))
 
-# Sex tidying doesn't need to happen
+# Sex tidying (just capitalizing)
+reduced_data <- reduced_data %>%
+  mutate(sex = case_when(sex == "male" ~ "Male",
+                         sex == "female" ~ "Female"))
 
 # Race tidying
 # We will ignore 2+ major races as its too hard to parse
-raw_data <- raw_data %>%
-  mutate(race_ethnicity = case_when(race == "white" ~ "white",
-                                    race == "black/african american/negro" ~ "black, or african american",
-                                    race == "american indian or alaska native" ~ "american indian or alaska native",
-                                    race == "chinese" ~ "asian (chinese)",
-                                    race == "japanese" ~ "asian (japanese)",
-                                    race == "other asian or pacific islander" ~ "other asian or pacific islander",
-                                    race == "other race, nec" ~ "some other race",
-                                    TRUE ~ "not relevant"))
+reduced_data <- reduced_data %>%
+  mutate(race_ethnicity = case_when(race == "white" ~ "White",
+                                    race == "black/african american/negro" ~ "Black, or African American",
+                                    race == "american indian or alaska native" ~ "American Indian or Alaska Native",
+                                    race == "chinese" ~ "Asian (Chinese)",
+                                    race == "japanese" ~ "Asian (Japanese)",
+                                    race == "other asian or pacific islander" ~ "Other Asian or Pacific Islander",
+                                    race == "other race, nec" ~ "Some other race",
+                                    race == "two major races" ~ "Two Major Races",
+                                    race == "three or more major races" ~ "Three or more Major Races",
+                                    TRUE ~ "Respondent Skipped")) %>%
+  filter(race_ethnicity != "Two Major Races") %>%
+  filter(race_ethnicity != "Three or more Major Races")
 
 # HH Income tidying
-raw_data <- raw_data %>%
-  mutate(household_income = case_when(hhincome <= 14999 ~ "less than 14999",
-                                      hhincome <= 19999 ~ "15000 to 19999",
-                                      hhincome <= 24999 ~ "20000 to 24999",
-                                      hhincome <= 29999 ~ "25000 to 29999",
-                                      hhincome <= 34999 ~ "30000 to 34999",
-                                      hhincome <= 39999 ~ "35000 to 39999",
-                                      hhincome <= 44999 ~ "40000 to 44999",
-                                      hhincome <= 49999 ~ "45000 to 49999",
-                                      hhincome <= 54999 ~ "50000 to 54999",
-                                      hhincome <= 59999 ~ "55000 to 59999",
-                                      hhincome <= 64999 ~ "60000 to 64999",
-                                      hhincome <= 69999 ~ "65000 to 69999",
-                                      hhincome <= 74999 ~ "70000 to 74999",
-                                      hhincome <= 79999 ~ "75000 to 79999",
-                                      hhincome <= 84999 ~ "80000 to 84999",
-                                      hhincome <= 89999 ~ "85000 to 89999",
-                                      hhincome <= 94999 ~ "90000 to 94999",
-                                      hhincome <= 99999 ~ "95000 to 99999",
-                                      hhincome <= 124999 ~ "100000 to 124999",
-                                      hhincome <= 149999 ~ "125000 to 149999",
-                                      hhincome <= 174999 ~ "150000 to 179999",
-                                      hhincome <= 199999 ~ "175000 to 199999",
-                                      hhincome <= 249999 ~ "200000 to 249999",
-                                      hhincome == 9999999 ~ "not available",
-                                      hhincome >= 250000 ~ "greater than 250000",
-                                      TRUE ~ "not available"))
+reduced_data <- reduced_data %>%
+  mutate(household_income = case_when(hhincome <= 14999 ~ "Less than $14,999",
+                                      hhincome <= 19999 ~ "$15,000 to $19,999",
+                                      hhincome <= 24999 ~ "$20,000 to $24,999",
+                                      hhincome <= 29999 ~ "$25,000 to $29,999",
+                                      hhincome <= 34999 ~ "$30,000 to $34,999",
+                                      hhincome <= 39999 ~ "$35,000 to $39,999",
+                                      hhincome <= 44999 ~ "$40,000 to $44,999",
+                                      hhincome <= 49999 ~ "$45,000 to $49,999",
+                                      hhincome <= 54999 ~ "$50,000 to $54,999",
+                                      hhincome <= 59999 ~ "$55,000 to $59,999",
+                                      hhincome <= 64999 ~ "$60,000 to $64,999",
+                                      hhincome <= 69999 ~ "$65,000 to $69,999",
+                                      hhincome <= 74999 ~ "$70,000 to $74,999",
+                                      hhincome <= 79999 ~ "$75,000 to $79,999",
+                                      hhincome <= 84999 ~ "$80,000 to $84,999",
+                                      hhincome <= 89999 ~ "$85,000 to $89,999",
+                                      hhincome <= 94999 ~ "$90,000 to $94,999",
+                                      hhincome <= 99999 ~ "$95,000 to $99,999",
+                                      hhincome <= 124999 ~ "$100,000 to $124,999",
+                                      hhincome <= 149999 ~ "$125,000 to $149,999",
+                                      hhincome <= 174999 ~ "$150,000 to $174,999",
+                                      hhincome <= 199999 ~ "$175,000 to $199,999",
+                                      hhincome <= 249999 ~ "$200,000 to $249,999",
+                                      hhincome == 9999999 ~ "Respondent Skipped",
+                                      hhincome >= 250000 ~ "$250,000 and above",
+                                      TRUE ~ "Respondent Skipped"))
 
 # Education tidying
-# REMOVE VOCATIONAL FROM SURVEY DATASET
-# REMOVE COMPLETED SOME GRADUATE BUT NO DEGREE
-raw_data <- raw_data %>%
+reduced_data <- reduced_data %>%
   mutate(education = case_when(us2018c_schl == "01" ~ "3rd Grade or less",
                                us2018c_schl == "02" ~ "3rd Grade or less",
                                us2018c_schl == "03" ~ "3rd Grade or less",
@@ -104,10 +111,10 @@ raw_data <- raw_data %>%
                                us2018c_schl == "21" ~ "College Degree (such as B.A., B.S.)",
                                us2018c_schl == "22" ~ "Masters degree",
                                us2018c_schl == "24" ~ "Doctorate degree",
-                               TRUE ~ "not relevant"))
+                               TRUE ~ "Respondent Skipped"))
 
 # State code tidying
-raw_data <- raw_data %>%
+reduced_data <- reduced_data %>%
   mutate(state = case_when(us2018c_st == "01" ~ "AL",
                            us2018c_st == "02" ~ "AK",
                            us2018c_st == "04" ~ "AZ",
@@ -159,12 +166,12 @@ raw_data <- raw_data %>%
                            us2018c_st == "54" ~ "WV",
                            us2018c_st == "55" ~ "WI",
                            us2018c_st == "56" ~ "WY",
-                           TRUE ~ "not available"))
+                           TRUE ~ "Respondent Skipped"))
 # Age cleaning
-raw_data <- raw_data %>%
+reduced_data <- reduced_data %>%
   mutate(age_tidied = as.numeric(age) - 1)
 # Bin the ages
-raw_data <- raw_data %>%
+reduced_data <- reduced_data %>%
   mutate(age_bin = case_when(age_tidied <= 17 ~ "Not eligible",
                              age_tidied <= 24 ~ "18 to 24",
                              age_tidied <= 34 ~ "25 to 34",
@@ -172,14 +179,17 @@ raw_data <- raw_data %>%
                              age_tidied <= 54 ~ "45 to 54",
                              age_tidied <= 64 ~ "55 to 64",
                              age_tidied <= 74 ~ "65 to 74",
-                             age_tidied >= 75  ~ "75 and older",
-                             TRUE ~ "not available"))
+                             age_tidied >= 75  ~ "75 or older",
+                             TRUE ~ "Respondent Skipped"))
+
+# Rename some variables
+reduced_data <- reduced_data %>%
+  mutate(gender = sex)
 
 # Keep the variables that are relevant to the model
-reduced_data <- 
-  raw_data %>% 
+reduced_data <- reduced_data %>%
   select(foreign_born,
-         sex,
+         gender,
          race_ethnicity,
          household_income,
          education,
@@ -189,20 +199,19 @@ reduced_data <-
 # Post Stratification cell counts
 reduced_data <- reduced_data %>%
   count(foreign_born,
-        sex,
+        gender,
         race_ethnicity,
         household_income,
         education,
         state,
         age_bin) %>%
   group_by(foreign_born,
-           sex,
+           gender,
            race_ethnicity,
            household_income,
            education,
            state,
            age_bin) 
 
-# Saving the census data as a csv file in my
-# working directory
+# Saving the census data as a csv file in root directory
 write_csv(reduced_data, "census_data.csv")
