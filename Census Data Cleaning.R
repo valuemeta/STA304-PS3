@@ -58,6 +58,7 @@ reduced_data <- reduced_data %>%
   filter(race_ethnicity != "Three or more Major Races")
 
 # HH Income tidying
+# Remove people who didn't report incomes
 reduced_data <- reduced_data %>%
   mutate(household_income = case_when(hhincome <= 14999 ~ "Less than $14,999",
                                       hhincome <= 19999 ~ "$15,000 to $19,999",
@@ -88,6 +89,7 @@ reduced_data <- reduced_data %>%
   filter(household_income != "Respondent Skipped")
 
 # Education tidying
+# Remove Professional degree beyond a bachelor's degree observations
 reduced_data <- reduced_data %>%
   mutate(education = case_when(us2018c_schl == "01" ~ "3rd Grade or less",
                                us2018c_schl == "02" ~ "3rd Grade or less",
