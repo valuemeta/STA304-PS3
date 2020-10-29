@@ -10,6 +10,7 @@ output:
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(survey)
 
 # Loading in the cleaned survey Data
 survey_data <- read_csv("X:/R studio proj/STA304-PS3/survey_data.csv")
@@ -37,16 +38,25 @@ $$ y = \beta_0+\beta_1  x_{age} + \epsilon$$
 
 Where $y$ represents the proportion of voters who will vote for Donald Trump. Similarly, $\beta_0$ represents the intercept of the model, and is the probability of voting for Donald Trump at age 0. Additionally, $\beta_1$ represents the slope of the model. So, for everyone one unit increase in age, we expect a $\beta_1$ increase in the probability of voting for Donald Trump.
 
-```{r, include=FALSE}
+```{r, include=TRUE}
 
 # Creating the Model
-model <- lm(vote_trump ~ age, 
-            data=survey_data)
+model.design <- svydesign(ids=~1, data = survey_data, weights = ~weight)
+
+trump_model <- svyglm(vote_trump ~ foreign_born + gender + race_ethnicity + household_income + education + state + age_bin,
+                family = quasibinomial,
+                design = model.design)
 
 # Model Results (to Report in Results section)
-# summary(model)
+summary(trump_model)
 # OR
-# broom::tidy(model)
+#broom::tidy(model)
+
+biden_model <- svyglm(vote_biden ~ foreign_born + gender + race_ethnicity + household_income + education + state + age_bin,
+                family = quasibinomial,
+                design = model.design)
+
+summary(biden_model)
 
 ```
 
@@ -54,12 +64,22 @@ model <- lm(vote_trump ~ age,
 
 In order to estimate the proportion of voters who will vote for Donald Trump I need to perform a post-stratification analysis. Here I create cells based off different ages. Using the model described in the previous sub-section I will estimate the proportion of voters in each age bin. I will then weight each proportion estimate (within each bin) by the respective population size of that bin and sum those values and divide that by the entire population size. 
 
-```{r, include=FALSE}
+```{r, include=TRUE}
 
 # Here I will perform the post-stratification calculation
-census_data$estimate <-
-  model %>%
+census_data$logodds_estimate <- trump_model %>%
   predict(newdata = census_data)
+
+census_data$estimate <- exp(census_data$logodds_estimate)/(1+exp(census_data$logodds_estimate))
+
+census_data %>%
+  mutate(alp_predict_prop = estimate*n) %>%
+  summarise(alp_predict = sum(alp_predict_prop)/sum(n))
+
+census_data$logodds_estimate <- biden_model %>%
+  predict(newdata = census_data)
+
+census_data$estimate <- exp(census_data$logodds_estimate)/(1+exp(census_data$logodds_estimate))
 
 census_data %>%
   mutate(alp_predict_prop = estimate*n) %>%
@@ -93,3 +113,5 @@ Here you discuss subsequent work to be done after this report. This can include 
 1. Tausanovitch, Chris and Lynn Vavreck. 2020. Democracy Fund + UCLA Nationscape, October 10-17, 2019 (version 20200814). Retrieved from https://www.voterstudygroup.org/publication/nationscape-data-set.
 
 2. Steven Ruggles, Sarah Flood, Ronald Goeken, Josiah Grover, Erin Meyer, Jose Pacas and Matthew Sobek. IPUMS USA: Version 10.0 AMERICAN COMMUNITY SURVEY 2014-2018 5-YEAR SAMPLE. Minneapolis, MN: IPUMS, 2020. https://doi.org/10.18128/D010.V10.0
+
+Make sure to cite R and every package.
