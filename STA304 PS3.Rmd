@@ -1,5 +1,5 @@
 ---
-title: "Title of Your Report"
+title: "American Election 2020 prediction using Logistic Regression"
 author: "Names of your Group Members"
 date: "November 2, 2020"
 output:
@@ -20,7 +20,7 @@ census_data <- read_csv("X:/R studio proj/STA304-PS3/census_data.csv")
 
 ```
 
-# Title of your Report
+# American Election 2020 prediction using Logistic Regression
 
 ## Name(s) of Author(s) 
 ## November 2, 2020
@@ -131,6 +131,8 @@ Here you will summarize the previous sections and discuss conclusions drawn from
 ## Weaknesses
 
 Here we discuss weaknesses of the study, data, analysis, etc. You can also discuss areas for improvement.
+
+Comparing education across datasets was a challenge. Vocational schooling and graduate without degree were possible values in the survey dataset, but had no corresponding values in the census dataset. We decided to filter out all observations with these values, to ensure we could post-stratify. However in doing so, we may have introduced more bias to our already small dataset. We reduced the dataset size from approximately 6500 observations to approximately 6000 observations, which decreases the accuracy of our estimates in our model. In addition, removing specific values from our dataset may skew towards a certain political candidate. Professional degree beyond bachelor's degree was a category in education for the census data that had no survey data equivalent observations in this category were also removed. Similarly, we encountered problems in the race variable across datasets. The census dataset had categories for multiple major races, but the survey dataset did not. We decided to remove all observations in the census dataset that were in these categories. This could introduce bias since it could be that people who are in multiple major race categories could prefer to vote Biden over Trump. In addition, we removed observations in the census data that did not report their income, due to the survey data having no such category. The exact meanings of the variables across datasets was also not the same. Survey data only had annual household income before taxes, while census data also incorporated losses. This can possibly skew the data because losses would shift incomes down, so overall more people would have lower annual household incomes (relative to the model), which might overestimate Biden votes over Trump votes.
 
 ## Next Steps
 
