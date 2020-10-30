@@ -23,16 +23,16 @@ census_data <- read_csv("X:/R studio proj/STA304-PS3/census_data.csv")
 # Title of your Report
 
 ## Name(s) of Author(s) 
-## Date
+## November 2, 2020
 
 
 # Model
 
-Here we are interested in predicting the popular vote outcome of the 2020 American federal election (include citation). To do this we are employing a post-stratification technique. In the following sub-sections I will describe the model specifics and the post-stratification calculation.
+Here we are interested in predicting the popular vote outcome of the 2020 American federal election (include citation). To do this we are employing a post-stratification technique. In the following sub-sections we will describe the model specifics and the post-stratification calculations.
 
 
 ## Model Specifics
-We will be using a logistic regression model to model the proportion of voters who will vote for Donald Trump. We will be using birthplace, gender, race/ethnicity, household income, education, state, and age to model the probability of voting for Donald Trump. The logistic regression model I am using is:
+We will be using a logistic regression model to model the proportion of voters who will vote for Donald Trump. A logistic model is suitable because the event of voting for Donald Trump is a Bernoulli random variable which means that it can only take on two possible values. We will be using birthplace, gender, race/ethnicity, household income, education, state, and age to model the probability of voting for Donald Trump. The logistic regression model we are using is:
 
 \begin{align*}
     \ln \left(\frac{P_T}{1-P_T}\right) &= \beta_0+\beta_{\text{US}}x_{\text{US}} +\beta_{\text{male}}x_{\text{male}} \\
@@ -55,11 +55,13 @@ We will be using a logistic regression model to model the proportion of voters w
     }}{\beta_ix_i}
 \end{align*}
 
-Where $P_T$ represents the proportion of voters who will vote for Donald Trump. Similarly, $\beta_0$ represents the intercept of the model, and is the log-odds of voting for Donald Trump when the voter is born outside the US, is female and American Indian, has a household income between 100000 to 124999 dollars, below third grade education, living in Arkansas, and is between 18 and 24 years old.  The interpretation for the other $\beta_i$  are similar to one another. They represent the average change in log-odds when going from the default value of the variable to the $i$th value of the variable. For example, $\beta_{white}$ represents the average change in log-odds when going from American Indian to White.
+Where $P_T$ represents the proportion of voters who will vote for Donald Trump. Similarly, $\beta_0$ represents the log-odds of voting for Donald Trump when the voter is born outside the US, is female and American Indian, has a household income between 100000 to 124999 dollars, below third grade education, living in Arkansas, and is between 18 and 24 years old.  The interpretation for the other $\beta_i$  are similar to one another. They represent the average change in log-odds when going from the default value of the variable to the $i$th value of the variable. The default values for all the variables were listed previously in the explanation of $\beta_0$. As a specific example, $\beta_{white}$ represents the average change in log-odds of voting for Donald Trump when going from American Indian observations to White observations. In this regression model, we used sampling weights which give the proportion of observations in the population that the observation represents. These sampling weights are automatically normalized according to the sample size as they have been provided for us in the raw survey dataset.
 
-Note that in this model, we used sampling weights which give the proportion of observations in the population that the observation represents. These sample weights are automatically normalized according to the sample size as they are in the original dataset.
+We will also use a similar logistic regression model to model the proportion of voters who will vote for Joe Biden. The explanatory variables are the exact same as the previous model, but the log-odds becomes
+$$ ln(\frac{P_B}{1-P_B}) $$
+Where $P_B$ represents the proportion of voters who will vote for Joe Biden. Interpretation of the parameters for the Joe Biden model is similar to the model for Donald Trump.
 
-```{r, include=TRUE}
+```{r, include=FALSE}
 
 # Creating the Model
 model.design <- svydesign(ids=~1, data = survey_data, weights = ~weight)
@@ -70,8 +72,6 @@ trump_model <- svyglm(vote_trump ~ foreign_born + gender + race_ethnicity + hous
 
 # Model Results (to Report in Results section)
 summary(trump_model)
-# OR
-#broom::tidy(model)
 
 biden_model <- svyglm(vote_biden ~ foreign_born + gender + race_ethnicity + household_income + education + state + age_bin,
                       family = quasibinomial,
@@ -83,20 +83,21 @@ summary(biden_model)
 
 ## Post-Stratification 
 
-In order to estimate the proportion of voters who will vote for Donald Trump I need to perform a post-stratification analysis. Here I create cells based off different ages. Using the model described in the previous sub-section I will estimate the proportion of voters in each age bin. I will then weight each proportion estimate (within each bin) by the respective population size of that bin and sum those values and divide that by the entire population size. 
+In order to estimate the proportion of voters who will vote for Donald Trump and Joe Biden we will need to perform a post-stratification analysis. Here we create cells based off each of the explanatory variables in our model: birthplace, gender, race/ethnicity, household income, education, state, and age. We chose variables that we thought affected political leaning and were also in both both datasets. Using the models described in the previous sub-section we will estimate the proportion of voters who will vote for Donald Trump and Joe Biden in each cell. We will then weight each proportion estimate (within each cell) by the respective population size of that cell and sum those values and divide that by the entire population size. We will perform this twice, once to obtain the post-stratified proportion of voters who will vote for Donald Trump, and another to obtain the post-stratified proportion of voters who will vote for Joe Biden. In doing this post-stratification, we obtain a more accurate estimate of the proportion of voters who will vote for Donald Trump and Joe Biden. This is achieved by using the much larger census dataset to reduce the bias our smaller survey dataset may have.
 
-```{r, include=TRUE}
+```{r, include=FALSE}
 
-# Here I will perform the post-stratification calculation
+# Perform the post-stratification calculations
 census_data$logodds_estimate <- trump_model %>%
   predict(newdata = census_data)
 
 census_data$estimate <- exp(census_data$logodds_estimate)/(1+exp(census_data$logodds_estimate))
 
-census_data %>%
+trump_prop <- census_data %>%
   mutate(alp_predict_prop = estimate*n) %>%
   summarise(alp_predict = sum(alp_predict_prop)/sum(n))
 
+trump_prop <- as.numeric(trump_prop)
 
 
 census_data$logodds_estimate <- biden_model %>%
@@ -104,10 +105,11 @@ census_data$logodds_estimate <- biden_model %>%
 
 census_data$estimate <- exp(census_data$logodds_estimate)/(1+exp(census_data$logodds_estimate))
 
-census_data %>%
+biden_prop <- census_data %>%
   mutate(alp_predict_prop = estimate*n) %>%
   summarise(alp_predict = sum(alp_predict_prop)/sum(n))
 
+biden_prop <- as.numeric(biden_prop)
 
 ```
 
@@ -118,9 +120,13 @@ Here you will include all results. This includes descriptive statistics, graphs,
 
 Please ensure that everything is well labelled. So if you have multiple histograms and plots, calling them Figure 1, 2, 3, etc. and referencing them as Figure 1, Figure 2, etc. in your report will be expected. The reader should not get lost in a sea of information. Make sure to have the results be clean, well formatted and digestible.
 
+We calculated that the proportion of voters who would vote for Donald Trump is 0.374. This was calculated using the logistic regression model we developed for predicting the log-odds of voters who would vote for Donald Trump, which took into account the voter's birthplace, gender, race/ethnicity, household income, education, state, and age. Similarly, we calculated that the proportion of voters who would vote for Joe Biden is 0.408.
+
 # Discussion
 
 Here you will summarize the previous sections and discuss conclusions drawn from the results. Make sure to elaborate and connect your analysis to the goal of the study.
+
+
 
 ## Weaknesses
 
