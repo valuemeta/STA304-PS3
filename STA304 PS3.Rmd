@@ -126,7 +126,10 @@ We calculated that the proportion of voters who would vote for Donald Trump is 0
 
 Here you will summarize the previous sections and discuss conclusions drawn from the results. Make sure to elaborate and connect your analysis to the goal of the study.
 
+Summary:
 
+Conclusions:
+Using the estimated proportion of voters who would vote for Donald Trump and comparing against the proportion of voters who would vote for Joe Biden shows that the latter is larger. Using this, we predict that Joe Biden will win the presidential election.
 
 ## Weaknesses
 
@@ -138,6 +141,7 @@ Comparing education across datasets was a challenge. Vocational schooling and gr
 
 Here you discuss subsequent work to be done after this report. This can include next steps in terms of statistical analysis (perhaps there is a more efficient algorithm available, or perhaps there is a caveat in the data that would allow for some new technique). Future steps should also be specified in terms of the study setting (eg. including a follow-up survey on something, or a subsequent study that would complement the conclusions of your report).
 
+After the election results are determined and available, one can determine the accuracy of the model in this paper by examining our estimates against the election results. Particularly, examining the ratio of the proportion of Trump voters and the proportion of Biden voters of both the model and the election results will show us how accurate the model was. We can also break down the votes by state and determine if it was a good variable to include in the logistic regression model or would something else like districts be better.
 
 # References
 
