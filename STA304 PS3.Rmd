@@ -32,11 +32,32 @@ Here we are interested in predicting the popular vote outcome of the 2020 Americ
 
 
 ## Model Specifics
-I will (incorrectly) be using a linear regression model to model the proportion of voters who will vote for Donald Trump. This is a naive model. I will only be using age, which is recorded as a numeric variable, to model the probability of voting for Donald Trump. The simple linear regression model I am using is:
+We will be using a logistic regression model to model the proportion of voters who will vote for Donald Trump. We will be using birthplace, gender, race/ethnicity, household income, education, state, and age to model the probability of voting for Donald Trump. The logistic regression model I am using is:
 
-$$ y = \beta_0+\beta_1  x_{age} + \epsilon$$
+\begin{align*}
+    \ln \left(\frac{P_T}{1-P_T}\right) &= \beta_0+\beta_{\text{US}}x_{\text{US}} +\beta_{\text{male}}x_{\text{male}} \\
+                                       &+\sum_{\substack{
+            i\in \text{race}, \\
+            i\neq \text{`american indian'}
+            }}{\beta_ix_i} + \sum_{\substack{
+            i\in \text{income}, \\
+            i\neq \text{`100k to 125k'}
+            }}{\beta_ix_i} + \sum_{\substack{
+            i\in \text{education}, \\
+            i\neq \text{`3rd grade'}  
+            }}{\beta_ix_i} \\
+                                       &+ \sum_{\substack{
+            i\in \text{state}, \\
+            i\neq \text{`AK'}
+            }}{\beta_ix_i} + \sum_{\substack{
+            i\in \text{age}, \\
+            i\neq \text{`18 to 24'}
+    }}{\beta_ix_i}
+\end{align*}
 
-Where $y$ represents the proportion of voters who will vote for Donald Trump. Similarly, $\beta_0$ represents the intercept of the model, and is the probability of voting for Donald Trump at age 0. Additionally, $\beta_1$ represents the slope of the model. So, for everyone one unit increase in age, we expect a $\beta_1$ increase in the probability of voting for Donald Trump.
+Where $P_T$ represents the proportion of voters who will vote for Donald Trump. Similarly, $\beta_0$ represents the intercept of the model, and is the log-odds of voting for Donald Trump when the voter is born outside the US, is female and American Indian, has a household income between 100000 to 124999 dollars, below third grade education, living in Arkansas, and is between 18 and 24 years old.  The interpretation for the other $\beta_i$  are similar to one another. They represent the average change in log-odds when going from the default value of the variable to the $i$th value of the variable. For example, $\beta_{white}$ represents the average change in log-odds when going from American Indian to White.
+
+Note that in this model, we used sampling weights which give the proportion of observations in the population that the observation represents. These sample weights are automatically normalized according to the sample size as they are in the original dataset.
 
 ```{r, include=TRUE}
 
@@ -44,8 +65,8 @@ Where $y$ represents the proportion of voters who will vote for Donald Trump. Si
 model.design <- svydesign(ids=~1, data = survey_data, weights = ~weight)
 
 trump_model <- svyglm(vote_trump ~ foreign_born + gender + race_ethnicity + household_income + education + state + age_bin,
-                family = quasibinomial,
-                design = model.design)
+                      family = quasibinomial,
+                      design = model.design)
 
 # Model Results (to Report in Results section)
 summary(trump_model)
@@ -53,8 +74,8 @@ summary(trump_model)
 #broom::tidy(model)
 
 biden_model <- svyglm(vote_biden ~ foreign_born + gender + race_ethnicity + household_income + education + state + age_bin,
-                family = quasibinomial,
-                design = model.design)
+                      family = quasibinomial,
+                      design = model.design)
 
 summary(biden_model)
 
@@ -75,6 +96,8 @@ census_data$estimate <- exp(census_data$logodds_estimate)/(1+exp(census_data$log
 census_data %>%
   mutate(alp_predict_prop = estimate*n) %>%
   summarise(alp_predict = sum(alp_predict_prop)/sum(n))
+
+
 
 census_data$logodds_estimate <- biden_model %>%
   predict(newdata = census_data)
