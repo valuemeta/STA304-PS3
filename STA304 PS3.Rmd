@@ -1,6 +1,6 @@
 ---
 title: "American Election 2020 prediction using Logistic Regression"
-author: "Names of your Group Members"
+author: "Danny Xu, Nayoung Kim, Steven Tran"
 date: "November 2, 2020"
 output:
   pdf_document: default
@@ -13,38 +13,117 @@ library(tidyverse)
 library(survey)
 
 # Loading in the cleaned survey Data
-survey_data <- read_csv("X:/R studio proj/STA304-PS3/survey_data.csv")
+survey_data <- read_csv("survey_data.csv") %>% drop_na
 
 # Loading in the cleaned census Data
-census_data <- read_csv("X:/R studio proj/STA304-PS3/census_data.csv")
+census_data <- read_csv("census_data.csv")
 
+# Ordering some variables as factors in order to perform logistic regression
+survey_data$age_bin <- factor(survey_data$age_bin, levels=
+                          c("18 to 24",
+                            "25 to 34",
+                            "35 to 44",
+                            "45 to 54",
+                            "55 to 64",
+                            "65 to 74",
+                            "75 or older"
+                            ))
+survey_data$education <- factor(survey_data$education, levels=
+                          c("3rd Grade or less",
+                            "Middle School - Grades 4 - 8",
+                            "Completed some high school",
+                            "High school graduate",
+                            "Associate Degree",
+                            "Completed some college, but no degree",
+                            "College Degree (such as B.A., B.S.)",
+                            "Masters degree",
+                            "Doctorate degree"
+                            ))
+survey_data$household_income <- factor(survey_data$household_income, levels=
+                          c("Less than $14,999",
+                            "$15,000 to $19,999",
+                            "$20,000 to $24,999",
+                            "$25,000 to $29,999",
+                            "$30,000 to $34,999",
+                            "$35,000 to $39,999",
+                            "$40,000 to $44,999",
+                            "$45,000 to $49,999",
+                            "$50,000 to $54,999",
+                            "$55,000 to $59,999",
+                            "$60,000 to $64,999",
+                            "$65,000 to $69,999",
+                            "$70,000 to $74,999",
+                            "$75,000 to $79,999",
+                            "$80,000 to $84,999",
+                            "$85,000 to $89,999",
+                            "$90,000 to $94,999",
+                            "$95,000 to $99,999",
+                            "$100,000 to $124,999",
+                            "$125,000 to $149,999",
+                            "$150,000 to $174,999",
+                            "$175,000 to $199,999",
+                            "$200,000 to $249,999",
+                            "$250,000 and above"
+                            ))
+survey_data$gender <- factor(survey_data$gender, levels=
+                          c("Female",
+                            "Male"
+                            ))
+survey_data$foreign_born <- factor(survey_data$foreign_born, levels=
+                          c("Another country",
+                            "The United States"
+                            ))
 ```
 
-# American Election 2020 prediction using Logistic Regression
+<!-- # American Election 2020 prediction using Logistic Regression
 
-## Name(s) of Author(s) 
-## November 2, 2020
+## Name(s) of Author(s)
+## November 2, 2020 -->
 
+# Introduction
+
+Many Americans and people across the world alike have made strong predictions about the popular vote outcome of the 2020 American federal election. We are interested in predicting the outcome using a logistic regression model fitted to survey data, and employing a post-stratification technique using US census data. In this report, we will discuss the model specifics, how the population data was used to weigh the strata and make them more representative, and finally, the predicted winner as determined by our methods.
+
+## Data
+
+Two datasets were used in this report. For the survey data, we selected a subset of the Nationscape Data Set published by the Democracy Fund and UCLA Nationscape groups for the most recent survey that was conducted on June 25th 2020 (**citation needed here**). Among other variables discussed below, respondents were asked whether they would vote for Donald Trump or Joe Biden on that date. The census data is provided by IPUMS as the 'American Community Survey 2014-2018 5-Year Sample'; we used, along with the default variables which included strata weights, the following attributes: `HHINCOME, US2018C_ST, SEX, RACE, BPL, US2018C_SCHL, AGE`. These variables were selected because equivalent questions were asked in the survey, and they describe the demographics of the respondents well. The data was cleaned into matching observation values in order to obtain a correspondence between the two datasets for later use when performing the post-stratification.
 
 # Model
 
-Here we are interested in predicting the popular vote outcome of the 2020 American federal election (include citation). To do this we are employing a post-stratification technique. In the following sub-sections we will describe the model specifics and the post-stratification calculations.
-
-
 ## Model Specifics
-We will be using a logistic regression model to model the proportion of voters who will vote for Donald Trump. A logistic model is suitable because the event of voting for Donald Trump is a Bernoulli random variable which means that it can only take on two possible values. We will be using birthplace, gender, race/ethnicity, household income, education, state, and age to model the probability of voting for Donald Trump. The logistic regression model we are using is:
+We will be using a logistic regression model to model the proportion of voters who will vote for Donald Trump. A logistic model is suitable because the event of voting for Donald Trump is a Bernoulli random variable which means that it can only take on two possible values. We will be using birthplace, gender, race/ethnicity, household income, education, state, and age to model the probability of voting for Donald Trump. The variables are ordered in the following way:
+
+- Ordinal variables are:
+  - `income`:
+    - baseline: "`r levels(survey_data$household_income)[1]`"
+    - order: (`r levels(survey_data$household_income) %>% sapply(function(x) toString(dQuote(x, F)))`)
+  - `education`:
+    - baseline: "`r levels(survey_data$education)[1]`""
+    - order: (`r levels(survey_data$education) %>% sapply(function(x) toString(dQuote(x, F)))`)
+  - `age_bin`:
+    - baseline: "`r levels(survey_data$age_bin)[1]`"
+    - order: (`r levels(survey_data$age_bin) %>% sapply(function(x) toString(dQuote(x, F)))`)
+  - `gender`:
+    - baseline: "`r levels(survey_data$gender)[1]`"
+    - order: (`r levels(survey_data$gender) %>% sapply(function(x) toString(dQuote(x, F)))`)
+  - `foreign_born`:
+    - baseline: "`r levels(survey_data$foreign_born)[1]`"
+    - order: (`r levels(survey_data$foreign_born) %>% sapply(function(x) toString(dQuote(x, F)))`)
+- Nominal variables have no order and are: `race` (`r survey_data$race_ethnicity %>% unique`), and `state` (50 states in the US).
+
+Thus, the logistic regression model we are using is:
 
 \begin{align*}
     \ln \left(\frac{P_T}{1-P_T}\right) &= \beta_0+\beta_{\text{US}}x_{\text{US}} +\beta_{\text{male}}x_{\text{male}} \\
                                        &+\sum_{\substack{
             i\in \text{race}, \\
-            i\neq \text{`american indian'}
+            i\neq \text{`American Indian'}
             }}{\beta_ix_i} + \sum_{\substack{
             i\in \text{income}, \\
-            i\neq \text{`100k to 125k'}
+            i\neq \text{`Less than \$14,999'}
             }}{\beta_ix_i} + \sum_{\substack{
             i\in \text{education}, \\
-            i\neq \text{`3rd grade'}  
+            i\neq \text{`3rd grade or less'}
             }}{\beta_ix_i} \\
                                        &+ \sum_{\substack{
             i\in \text{state}, \\
@@ -55,14 +134,15 @@ We will be using a logistic regression model to model the proportion of voters w
     }}{\beta_ix_i}
 \end{align*}
 
-Where $P_T$ represents the proportion of voters who will vote for Donald Trump. Similarly, $\beta_0$ represents the log-odds of voting for Donald Trump when the voter is born outside the US, is female and American Indian, has a household income between 100000 to 124999 dollars, below third grade education, living in Arkansas, and is between 18 and 24 years old.  The interpretation for the other $\beta_i$  are similar to one another. They represent the average change in log-odds when going from the default value of the variable to the $i$th value of the variable. The default values for all the variables were listed previously in the explanation of $\beta_0$. As a specific example, $\beta_{white}$ represents the average change in log-odds of voting for Donald Trump when going from American Indian observations to White observations. In this regression model, we used sampling weights which give the proportion of observations in the population that the observation represents. These sampling weights are automatically normalized according to the sample size as they have been provided for us in the raw survey dataset.
+Where $P_T$ represents the proportion of voters who will vote for Donald Trump. Similarly, the intercept term $\beta_0$ represents the baseline log-odds of voting for Donald Trump; that is, the voter is born outside the US, is female and American Indian, has a household income less than \$14,999, below third grade education, living in Arkansas, and is between 18 and 24 years old. With this dummy variable coding, changing the 'level' of a variable by changing the value of one $x_i$ from 1 to 0 would affect the log-odds by $\beta_i$, the regression estimate for a certain variable. In other words, they represent the average change in log-odds when going from the default value of the variable to the $i$th value of the variable.
+
+The default values for all the variables were listed previously in the explanation of $\beta_0$. As a specific example, $\beta_{white}$ represents the average change in log-odds of voting for Donald Trump when going from American Indian observations to White observations. In this regression model, we used sampling weights which give the proportion of observations in the population that the observation represents. These sampling weights are automatically normalized according to the sample size as they have been provided for us in the raw survey dataset.
 
 We will also use a similar logistic regression model to model the proportion of voters who will vote for Joe Biden. The explanatory variables are the exact same as the previous model, but the log-odds becomes
-$$ ln(\frac{P_B}{1-P_B}) $$
-Where $P_B$ represents the proportion of voters who will vote for Joe Biden. Interpretation of the parameters for the Joe Biden model is similar to the model for Donald Trump.
+$$ \ln\left(\frac{P_B}{1-P_B}\right) $$
+Where $P_B$ represents the proportion of voters who will vote for Joe Biden. Interpretation of the parameters for the Joe Biden model are analogous to those for the model used to predict Donald Trump's vote proportions.
 
-```{r, include=FALSE}
-
+```{r, include=F}
 # Creating the Model
 model.design <- svydesign(ids=~1, data = survey_data, weights = ~weight)
 
@@ -78,14 +158,13 @@ biden_model <- svyglm(vote_biden ~ foreign_born + gender + race_ethnicity + hous
                       design = model.design)
 
 summary(biden_model)
-
 ```
 
-## Post-Stratification 
+## Post-Stratification
 
 In order to estimate the proportion of voters who will vote for Donald Trump and Joe Biden we will need to perform a post-stratification analysis. Here we create cells based off each of the explanatory variables in our model: birthplace, gender, race/ethnicity, household income, education, state, and age. We chose variables that we thought affected political leaning and were also in both both datasets. Using the models described in the previous sub-section we will estimate the proportion of voters who will vote for Donald Trump and Joe Biden in each cell. We will then weight each proportion estimate (within each cell) by the respective population size of that cell and sum those values and divide that by the entire population size. We will perform this twice, once to obtain the post-stratified proportion of voters who will vote for Donald Trump, and another to obtain the post-stratified proportion of voters who will vote for Joe Biden. In doing this post-stratification, we obtain a more accurate estimate of the proportion of voters who will vote for Donald Trump and Joe Biden. This is achieved by using the much larger census dataset to reduce the bias our smaller survey dataset may have.
 
-```{r, include=FALSE}
+```{r, include=F}
 
 # Perform the post-stratification calculations
 census_data$logodds_estimate <- trump_model %>%
@@ -116,7 +195,7 @@ biden_prop <- as.numeric(biden_prop)
 
 # Results
 
-Here you will include all results. This includes descriptive statistics, graphs, figures, tables, and model results. Please ensure that everything is well formatted and in a report style. You must also provide an explanation of the results in this section. 
+Here you will include all results. This includes descriptive statistics, graphs, figures, tables, and model results. Please ensure that everything is well formatted and in a report style. You must also provide an explanation of the results in this section.
 
 Please ensure that everything is well labelled. So if you have multiple histograms and plots, calling them Figure 1, 2, 3, etc. and referencing them as Figure 1, Figure 2, etc. in your report will be expected. The reader should not get lost in a sea of information. Make sure to have the results be clean, well formatted and digestible.
 
