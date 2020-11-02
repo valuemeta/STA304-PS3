@@ -1,8 +1,8 @@
 #### Preamble ####
 # Purpose: Load and clean the census data for post stratification purposes
-# Authors: Name, Name, Name
+# Authors: Danny Xu, Nayoung Kim, Steven Tran
 # Date: 2 November 2020
-# Contact: xudanny1@gmail.com, OTHER EMAILS
+# Contact: xudanny1@gmail.com
 # License: MIT
 # Pre-requisites: 
 # - IPMUS ACS 5 year 2018 data downloaded with the following variables:

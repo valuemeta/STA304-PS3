@@ -1,8 +1,8 @@
 #### Preamble ####
 # Purpose: Load and clean the survey data for model making purposes
-# Author: Name, Name, Name
+# Authors: Danny Xu, Nayoung Kim, Steven Tran
 # Data: 2 November 2020
-# Contact: xudanny1@gmail.com, OTHER EMAILS
+# Contact: xudanny1@gmail.com
 # License: MIT
 # Pre-requisites: 
 # - ULCA Democracy Fund Voter Study Group Data
