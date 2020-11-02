@@ -243,11 +243,15 @@ After the election results are determined and available, one can determine the a
 
 5. Tausanovitch, C., & Vavreck, L. (2020). Democracy fund + UCLA nationscape user guide. Democracy Fund Voter Study Group. https://www.voterstudygroup.org/uploads/reports/Data/Nationscape-User-Guide_2020sep10.pdf
 
-6. Wickham, H., Averick M., Bryan J., Chang W., McGowan, L. D., Francois R., Grolemund G., Hayes A., Henry, L., Hester J., Kuhn M., Pedersen T. L., Miller E., Bache, S. M., Muller, K., Ooms J., Robinson, D., Seidel, D. P., Spinu, D.,... Yutani, H. (2019). Welcome to the Tidyverse. The Journal of Open Source Software. https://joss.theoj.org/papers/10.21105/joss.01686 
+6. Van Domelen, D. R. (2019). tab: Create summary tables for statistical reports. rdrr.ido. https://rdrr.io/cran/tab/
 
-7. Wiley, J. F., & Pace, L. A. (2015). Beginning R: An introduction to statistical programming. Apress. https://books-scholarsportal-info.myaccess.library.utoronto.ca/en/read?id=/ebooks/ebooks3/springer/2017-08-17/1/9781484203736#page=1
+7. Wickham, H., Averick M., Bryan J., Chang W., McGowan, L. D., Francois R., Grolemund G., Hayes A., Henry, L., Hester J., Kuhn M., Pedersen T. L., Miller E., Bache, S. M., Muller, K., Ooms J., Robinson, D., Seidel, D. P., Spinu, D.,... Yutani, H. (2019). Welcome to the Tidyverse. The Journal of Open Source Software. https://joss.theoj.org/papers/10.21105/joss.01686 
 
-8. Wu, C., & Thompson, M. E. (2020). Sampling theory and practice. Springer.
+8. Wiley, J. F., & Pace, L. A. (2015). Beginning R: An introduction to statistical programming. Apress. https://books-scholarsportal-info.myaccess.library.utoronto.ca/en/read?id=/ebooks/ebooks3/springer/2017-08-17/1/9781484203736#page=1
+
+9. Wu, C., & Thompson, M. E. (2020). Sampling theory and practice. Springer.
+
+10. Xie, Y. (2020). knitr: A general-purpose package for dynamic report generation in R. rdrr.io. https://rdrr.io/cran/knitr/
 
 # Appendix
 ```{r, echo=F}
