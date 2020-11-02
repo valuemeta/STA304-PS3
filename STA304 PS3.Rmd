@@ -207,7 +207,7 @@ We calculated that the proportion of voters who would vote for Donald Trump is `
 
 # Discussion
 
-Here you will summarize the previous sections and discuss conclusions drawn from the results. Make sure to elaborate and connect your analysis to the goal of the study.
+<!--Here you will summarize the previous sections and discuss conclusions drawn from the results. Make sure to elaborate and connect your analysis to the goal of the study.-->
 
 ## Summary 
 
